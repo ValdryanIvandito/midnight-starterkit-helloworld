@@ -1,0 +1,65 @@
+# ===============================
+# Node.js
+# ===============================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ===============================
+# Build output
+# ===============================
+dist/
+build/
+.out/
+
+# ===============================
+# TypeScript
+# ===============================
+*.tsbuildinfo
+
+# ===============================
+# Environment variables (SANGAT PENTING)
+# ===============================
+.env
+.env.*
+!.env.example
+
+# ===============================
+# Midnight / Compact / Local Chain
+# ===============================
+midnight-level-db/
+*.proof
+*.witness
+*.zkey
+
+# ===============================
+# Compact compiler artifacts
+# ===============================
+contracts/**/managed/
+contracts/**/target/
+contracts/**/.compact/
+
+# ===============================
+# OS / Editor
+# ===============================
+.DS_Store
+Thumbs.db
+
+# ===============================
+# VS Code
+# ===============================
+.vscode/
+!.vscode/extensions.json
+
+# ===============================
+# Logs
+# ===============================
+logs/
+*.log
+
+# ===============================
+# Coverage
+# ===============================
+coverage/
