@@ -16,24 +16,20 @@ import { Transaction as ZswapTransaction } from "@midnight-ntwrk/zswap";
 import { WebSocket } from "ws";
 import * as fs from "fs";
 import * as path from "path";
-import * as readline from "readline/promises";
 import * as Rx from "rxjs";
 import { type Wallet } from "@midnight-ntwrk/wallet-api";
+import dotenv from "dotenv";
+dotenv.config();
+
+const walletSeed: string = process.env.WALLET_SEED || "";
+
+if (!walletSeed) {
+  console.log("walletSeed doesn't exist, please put walletSeed in .env");
+}
 
 // Fix WebSocket for Node.js environment
 // @ts-ignore
 globalThis.WebSocket = WebSocket;
-
-// Configure for Midnight Testnet
-// setNetworkId(NetworkId.TestNet);
-
-// Testnet connection endpoints
-// const UNDEPLOYED_CONFIG = {
-//   indexer: "https://indexer.testnet-02.midnight.network/api/v1/graphql",
-//   indexerWS: "wss://indexer.testnet-02.midnight.network/api/v1/graphql/ws",
-//   node: "https://rpc.testnet-02.midnight.network",
-//   proofServer: "http://127.0.0.1:6300",
-// };
 
 // Configure for Midnight Undeployed
 setNetworkId(NetworkId.Undeployed);
@@ -66,31 +62,7 @@ const waitForFunds = (wallet: Wallet) =>
 async function main() {
   console.log("Midnight Hello World Deployment\n");
 
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
   try {
-    // Ask user if they have an existing wallet seed
-    const choice = await rl.question("Do you have a wallet seed? (y/n): ");
-
-    let walletSeed: string;
-    if (choice.toLowerCase() === "y" || choice.toLowerCase() === "yes") {
-      // Use existing seed
-      walletSeed = await rl.question("Enter your 64-character seed: ");
-    } else {
-      // Generate new wallet seed
-      const bytes = new Uint8Array(32);
-      // @ts-ignore
-      crypto.getRandomValues(bytes);
-      walletSeed = Array.from(bytes, (b) =>
-        b.toString(16).padStart(2, "0")
-      ).join("");
-      console.log(`\nSAVE THIS SEED: ${walletSeed}\n`);
-    }
-
-    // Rest of deployment logic follows...
     // Build wallet from seed
     console.log("Building wallet...");
     const wallet = await WalletBuilder.buildFromSeed(
@@ -112,10 +84,7 @@ async function main() {
 
     if (balance === 0n) {
       console.log(`Your wallet balance is: 0`);
-      console.log(
-        "Visit: https://midnight.network/test-faucet to get some funds."
-      );
-      console.log(`Waiting to receive tokens...`);
+      console.log(`Please get some funds, Waiting to receive tokens...`);
       balance = await waitForFunds(wallet);
     }
 
@@ -197,24 +166,25 @@ async function main() {
 
     const contractAddress = deployed.deployTxData.public.contractAddress;
 
-    // Save deployment information
-    console.log("\nDEPLOYED!");
-    console.log(`Contract: ${contractAddress}\n`);
+    if (contractAddress) {
+      // Save deployment information
+      console.log("\nYour contract deployment is success!");
+      console.log(`Contract: ${contractAddress}\n`);
 
-    const info = {
-      contractAddress,
-      deployedAt: new Date().toISOString(),
-    };
+      const info = {
+        contractAddress,
+        deployedAt: new Date().toISOString(),
+      };
 
-    fs.writeFileSync("deployment.json", JSON.stringify(info, null, 2));
-    console.log("Saved to deployment.json");
+      fs.writeFileSync("deployment.json", JSON.stringify(info, null, 2));
+      console.log("Saved to deployment.json");
 
-    // Close wallet connection
-    await wallet.close();
+      await wallet.close();
+    } else {
+      console.log("\nYour contract deployment is failed!");
+    }
   } catch (error) {
     console.error("Failed:", error);
-  } finally {
-    rl.close();
   }
 }
 
