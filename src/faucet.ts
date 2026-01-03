@@ -1,3 +1,5 @@
+// Copyright 2025 Brick Towers
+
 import { LocalTestConfig, type TestConfiguration, TestWallet } from "./commons";
 import { nativeToken } from "@midnight-ntwrk/ledger";
 import { type Wallet } from "@midnight-ntwrk/wallet-api";
